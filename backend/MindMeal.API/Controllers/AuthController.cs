@@ -17,7 +17,6 @@ namespace MindMeal.API.Controllers
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
 
-        // IConfiguration'ı buradan içeri alıyoruz (Inject ediyoruz)
         public AuthController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
