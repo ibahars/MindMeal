@@ -9,6 +9,8 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const queryParams = new URLSearchParams(location.search);
   const currentFilter = queryParams.get("filter");
   const isMyRecipes = currentFilter === "mine";

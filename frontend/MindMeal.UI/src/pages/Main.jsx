@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import RecipeCard from "../components/RecipeCard";
 import AddRecipeModal from "../components/AddRecipeModal";
 import { useLocation } from "react-router-dom";
-import { UtensilsCrossed } from "lucide-react";
+import { UtensilsCrossed, Search } from "lucide-react";
 
 const Main = () => {
   const location = useLocation();
@@ -15,6 +15,7 @@ const Main = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleEditClick = (recipe) => {
     setSelectedRecipe(recipe);
@@ -32,7 +33,7 @@ const Main = () => {
       if (filter === "mine") {
         url = "http://localhost:5085/api/recipe/my-recipes";
       } else if (filter === "favorites") {
-        url = "http://localhost:5085/api/recipe/favorites"; // Bu endpoint'i backend'e ekleyeceğiz
+        url = "http://localhost:5085/api/recipe/favorites";
       }
 
       const response = await axios.get(url, {
@@ -47,6 +48,10 @@ const Main = () => {
   useEffect(() => {
     fetchRecipes();
   }, [filter]);
+
+  const filteredRecipes = recipes.filter((recipe) =>
+    recipe.title.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
     <div className="px-8 md:px-16 py-12 font-sans bg-white min-h-screen">
@@ -63,18 +68,30 @@ const Main = () => {
             adım adım pişir.
           </p>
         </div>
+        <div className="flex flex-col items-end gap-4">
+          <div className="relative w-64 md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Tarif ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-[#F0F0F0] rounded-full py-3 pl-12 pr-6 outline-none focus:ring-2 focus:ring-[#D47900] transition-all font-medium text-black"
+            />
+          </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-[#D47900] transition-all shadow-lg flex items-center gap-2"
-        >
-          <span className="text-xl">+</span> Tarif Paylaş
-        </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-[#D47900] transition-all shadow-lg flex items-center gap-2"
+          >
+            <span className="text-xl">+</span> Tarif Paylaş
+          </button>
+        </div>
       </div>
 
-      {recipes.length > 0 ? (
+      {filteredRecipes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {recipes.map((recipe) => (
+          {filteredRecipes.map((recipe) => (
             <RecipeCard
               key={recipe.id}
               recipe={recipe}
@@ -88,11 +105,14 @@ const Main = () => {
             <UtensilsCrossed size={48} className="text-gray-300" />
           </div>
           <h3 className="text-2xl font-bold text-gray-700 mb-2">
-            Henüz hiç tarif eklemediniz
+            {searchTerm
+              ? "Aradığınız kriterde tarif bulunamadı"
+              : "Henüz hiç tarif eklenmediniz"}
           </h3>
           <p className="text-gray-500 max-w-xs">
-            Paylaştığınız lezzetler burada listelenecek. İlk tarifinizi hemen
-            ekleyebilirsiniz!
+            {searchTerm
+              ? "Farklı anahtar kelimelerle aramayı deneyebilirsiniz."
+              : "Paylaştığınız lezzetler burada listelenecek. İlk tarifinizi hemen ekleyebilirsiniz!"}
           </p>
         </div>
       )}
