@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MindMeal.API.Data;
 using MindMeal.API.Models;
+using System.Security.Claims;
 
 namespace MindMeal.API.Controllers
 {
@@ -20,7 +21,7 @@ namespace MindMeal.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetRecipes()
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             int currentUserId = userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
 
             var recipes = await _context.Recipes
@@ -43,51 +44,77 @@ namespace MindMeal.API.Controllers
 
         [HttpGet("my-recipes")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Recipe>>> GetMyRecipes()
+        public async Task<ActionResult<IEnumerable<object>>> GetMyRecipes()
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return Unauthorized();
-
-            int userId = int.Parse(userIdClaim.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var myRecipes = await _context.Recipes
                 .Where(r => r.UserId == userId)
-                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.Title,
+                    r.Description,
+                    r.PrepTime,
+                    r.Difficulty,
+                    r.Calories,
+                    r.CreatedAt,
+                    r.UserId,
+                    IsFavorite = _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == userId)
+                })
                 .ToListAsync();
 
             return Ok(myRecipes);
+        }
+
+        [HttpGet("favorites")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<object>>> GetFavoriteRecipes()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var favoriteRecipes = await _context.Favorites
+                .Where(f => f.UserId == userId)
+                .Include(f => f.Recipe)
+                .Select(f => new
+                {
+                    f.Recipe!.Id,
+                    f.Recipe.Title,
+                    f.Recipe.Description,
+                    f.Recipe.PrepTime,
+                    f.Recipe.Difficulty,
+                    f.Recipe.Calories,
+                    f.Recipe.CreatedAt,
+                    f.Recipe.UserId,
+                    IsFavorite = true
+                })
+                .ToListAsync();
+
+            return Ok(favoriteRecipes);
         }
 
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<Recipe>> CreateRecipe(Recipe recipe)
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-
-            if (userIdClaim == null)
-            {
-                return Unauthorized("Kullanıcı bilgisi alınamadı.");
-            }
-
-            recipe.UserId = int.Parse(userIdClaim.Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            recipe.UserId = userId;
             recipe.CreatedAt = DateTime.Now;
 
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync();
-
             return Ok(recipe);
-
         }
 
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateRecipe(int id, Recipe recipe)
         {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var existingRecipe = await _context.Recipes.FindAsync(id);
 
             if (existingRecipe == null) return NotFound();
-            if (existingRecipe.UserId != userId) return Forbid(); // Başkasının tarifini düzenleyemez!
+            if (existingRecipe.UserId != userId) return Forbid();
 
             existingRecipe.Title = recipe.Title;
             existingRecipe.Description = recipe.Description;
@@ -103,7 +130,7 @@ namespace MindMeal.API.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteRecipe(int id)
         {
-            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var recipe = await _context.Recipes.FindAsync(id);
 
             if (recipe == null) return NotFound();
@@ -114,6 +141,4 @@ namespace MindMeal.API.Controllers
             return Ok();
         }
     }
-
-
 }
