@@ -23,6 +23,23 @@ namespace MindMeal.API.Controllers
             return await _context.Recipes.ToListAsync();
         }
 
+        [HttpGet("my-recipes")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Recipe>>> GetMyRecipes()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            var myRecipes = await _context.Recipes
+                .Where(r => r.UserId == userId)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            return Ok(myRecipes);
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<Recipe>> CreateRecipe(Recipe recipe)
@@ -42,6 +59,41 @@ namespace MindMeal.API.Controllers
 
             return Ok(recipe);
 
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateRecipe(int id, Recipe recipe)
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var existingRecipe = await _context.Recipes.FindAsync(id);
+
+            if (existingRecipe == null) return NotFound();
+            if (existingRecipe.UserId != userId) return Forbid(); // Başkasının tarifini düzenleyemez!
+
+            existingRecipe.Title = recipe.Title;
+            existingRecipe.Description = recipe.Description;
+            existingRecipe.PrepTime = recipe.PrepTime;
+            existingRecipe.Difficulty = recipe.Difficulty;
+            existingRecipe.Calories = recipe.Calories;
+
+            await _context.SaveChangesAsync();
+            return Ok(existingRecipe);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteRecipe(int id)
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            var recipe = await _context.Recipes.FindAsync(id);
+
+            if (recipe == null) return NotFound();
+            if (recipe.UserId != userId) return Forbid();
+
+            _context.Recipes.Remove(recipe);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
     }
 

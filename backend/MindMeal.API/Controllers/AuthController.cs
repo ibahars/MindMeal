@@ -65,6 +65,7 @@ namespace MindMeal.API.Controllers
                 Token = CreateToken(user),
                 RefreshToken = user.RefreshToken,
                 Username = user.Username,
+                Id = user.Id,
                 Email = user.Email
             };
             return Ok(response);
