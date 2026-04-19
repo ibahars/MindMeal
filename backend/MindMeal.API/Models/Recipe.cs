@@ -10,6 +10,7 @@ namespace MindMeal.API.Models
         public string? ImageUrl { get; set; }
         public int PrepTime { get; set; }
         public string Difficulty { get; set; } = "Kolay";
+        public int Calories { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int UserId { get; set; }
         public User? User { get; set; }
