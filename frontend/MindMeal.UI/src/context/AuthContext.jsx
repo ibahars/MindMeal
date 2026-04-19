@@ -7,7 +7,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Uygulama ilk açıldığında localStorage kontrolü yap
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
 
