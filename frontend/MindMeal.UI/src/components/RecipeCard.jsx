@@ -15,8 +15,6 @@ const RecipeCard = ({ recipe, onEdit }) => {
   };
 
   const { user } = useAuth();
-  console.log("Giriş yapan user:", user);
-  console.log("Tarif sahibi id:", recipe.userId);
   const isOwner =
     user && String(recipe.userId) === String(user.id || user.nameid);
   return (
