@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import axios from "axios";
 import { toast } from "react-toastify";
+import RecipeCard from "../components/RecipeCard";
 
 const Main = () => {
   const [recipes, setRecipes] = useState([]);
@@ -17,19 +18,23 @@ const Main = () => {
     fetchRecipes();
   }, []);
   return (
-    <div className="p-8 font-sans">
-      <h1 className="text-2xl font-bold mb-4">Tarifler</h1>
-      <div className="grid gap-4">
+    <div className="px-8 md:px-16 py-12 font-sans bg-white min-h-screen">
+      <div className="mb-12 text-left">
+        <h1 className="text-5xl md:text-6xl font-black text-black leading-tight">
+          Favori Lezzetini
+        </h1>
+        <h2 className="text-5xl md:text-6xl font-black text-[#D47900] leading-tight mb-6">
+          Keşfet.
+        </h2>
+        <p className="text-gray-500 text-lg max-w-xl font-medium">
+          Yüzlerce denenmiş tarifi araştır, favorilerini kaydet ve rehberlikle
+          adım adım pişir.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {recipes.map((recipe) => (
-          <div
-            key={recipe.id}
-            className="border p-4 rounded bg-white shadow-sm"
-          >
-            <h2 className="font-bold text-lg">{recipe.title}</h2>
-            <p className="text-gray-600">{recipe.description}</p>
-            <p className="text-orange-600 font-bold">{recipe.calories} kcal</p>
-            <small className="text-gray-400">Zorluk: {recipe.difficulty}</small>
-          </div>
+          <RecipeCard key={recipe.id} recipe={recipe} />
         ))}
       </div>
     </div>
