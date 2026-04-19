@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/register";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
           }
         />
       </Routes>
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </Router>
   );
 }

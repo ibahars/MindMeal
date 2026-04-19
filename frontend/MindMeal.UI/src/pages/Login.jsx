@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import { Link } from "react-router-dom";
 import HeroSvg from "../assets/hero.svg";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,10 +23,10 @@ const Login = () => {
       );
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("refreshToken", response.data.refreshToken);
-      alert("welcome");
+      toast.success("giriş başarılı!");
     } catch (error) {
       console.error("Login Hatası:", error.response?.data || error.message);
-      alert("giriş başarısız");
+      toast.error("hata oluştu, giriş başarısız!");
     }
   };
   return (
