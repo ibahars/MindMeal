@@ -10,7 +10,6 @@ namespace MindMeal.API.Models
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime TokenCreated { get; set; }
         public DateTime TokenExpires { get; set; }
-
         public List<Recipe> Recipes { get; set; } = new();
 
 

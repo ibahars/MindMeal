@@ -26,6 +26,10 @@ namespace MindMeal.API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDto request)
         {
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            {
+                return BadRequest("Bu e-posta adresi zaten kullanımda.");
+            }
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
             var user = new User
             {
