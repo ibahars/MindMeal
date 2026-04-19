@@ -20,7 +20,25 @@ namespace MindMeal.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetRecipes()
         {
-            return await _context.Recipes.ToListAsync();
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            int currentUserId = userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
+
+            var recipes = await _context.Recipes
+                .Select(r => new
+                {
+                    r.Id,
+                    r.Title,
+                    r.Description,
+                    r.PrepTime,
+                    r.Difficulty,
+                    r.Calories,
+                    r.CreatedAt,
+                    r.UserId,
+                    IsFavorite = currentUserId != 0 && _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == currentUserId)
+                })
+                .ToListAsync();
+
+            return Ok(recipes);
         }
 
         [HttpGet("my-recipes")]
