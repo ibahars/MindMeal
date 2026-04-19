@@ -1,12 +1,26 @@
 import { Clock, Star, Utensils, Heart, Activity } from "lucide-react";
 
 const RecipeCard = ({ recipe }) => {
+  const isNew = () => {
+    if (!recipe.createdAt) return false;
+
+    const createdDate = new Date(recipe.createdAt);
+    const today = new Date();
+
+    const diffTime = Math.abs(today - createdDate);
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    return diffDays <= 2;
+  };
+
   return (
     <div className="bg-[#F0F0F0] rounded-[40px] overflow-hidden w-full max-w-sm shadow-sm">
       <div className="relative h-72 w-full p-2">
-        <div className="absolute top-6 left-6 bg-[#D47900] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold">
-          <span className="text-xs">✓</span> Yeni Eklendi
-        </div>
+        {isNew() && (
+          <div className="absolute top-6 left-6 bg-[#D47900] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold shadow-lg">
+            <span className="text-xs">✓</span> Yeni Eklendi
+          </div>
+        )}
 
         <button className="absolute top-6 right-6 bg-white/80 p-2 rounded-full hover:bg-white transition-colors">
           <Heart size={20} className="text-black" />
@@ -25,7 +39,7 @@ const RecipeCard = ({ recipe }) => {
           </div>
           <div className="flex items-center gap-1">
             <Activity size={18} className="text-gray-500" />
-            <span className="capitalize">{recipe.difficulty}</span>
+            <span className="font-medium">{recipe.difficulty}</span>
           </div>
           <div className="flex items-center gap-1">
             <Utensils size={18} className="text-gray-500" />

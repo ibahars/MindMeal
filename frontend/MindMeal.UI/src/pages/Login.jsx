@@ -38,7 +38,6 @@ const Login = () => {
       );
 
       login(response.data);
-
       toast.success(`Hoş geldin, ${response.data.username}!`);
       navigate("/main");
     } catch (error) {
