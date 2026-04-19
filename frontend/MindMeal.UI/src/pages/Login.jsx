@@ -4,10 +4,30 @@ import Entry from "../components/Entry";
 import Button from "../components/Button";
 import { Link } from "react-router-dom";
 import HeroSvg from "../assets/hero.svg";
+import axios from "axios";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:5085/api/auth/login",
+        {
+          email: email,
+          password: password,
+        },
+      );
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      alert("welcome");
+    } catch (error) {
+      console.error("Login Hatası:", error.response?.data || error.message);
+      alert("giriş başarısız");
+    }
+  };
   return (
     <div className="flex h-screen w-screen overflow-hidden font-sans">
       <div className="hidden lg:block w-1/2 h-full relative bg-gray-300">
@@ -45,7 +65,7 @@ const Login = () => {
 
           <hr className="w-full border-gray-300 mb-8" />
 
-          <div className="w-full flex flex-col gap-6">
+          <form onSubmit={handleLogin} className="w-full flex flex-col gap-6">
             <Entry
               iconName="Mail"
               placeholder="Email adresi"
@@ -76,7 +96,7 @@ const Login = () => {
 
             <Button
               className="w-full mt-4 flex items-center justify-center gap-2 text-lg py-3 shadow-lg"
-              onClick={() => console.log("Giriş yapılıyor...")}
+              type="submit"
             >
               Giriş Yap <span className="text-xl">→</span>
             </Button>
@@ -90,7 +110,7 @@ const Login = () => {
                 Oluşturun
               </Link>
             </p>
-          </div>
+          </form>
         </div>
       </div>
     </div>

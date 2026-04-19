@@ -4,13 +4,38 @@ import Entry from "../components/Entry";
 import Button from "../components/Button";
 import { Link } from "react-router-dom";
 import HeroSvg from "../assets/hero.svg";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Şifreler eşleşmiyor!");
+      return;
+    }
+    try {
+      const response = await axios.post(
+        "http://localhost:5085/api/auth/register",
+        {
+          userName: fullName,
+          email: email,
+          password: password,
+        },
+      );
+      alert("kayıt başarılı!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Kayıt Hatası:", error.response?.data || error.message);
+      alert("giriş başarısız");
+    }
+  };
   return (
     <div className="flex h-screen w-screen overflow-hidden font-sans">
       <div className="hidden lg:block w-1/2 h-full relative bg-gray-300">
@@ -48,7 +73,10 @@ const Register = () => {
 
           <hr className="w-full border-gray-300 mb-8" />
 
-          <div className="w-full flex flex-col gap-5">
+          <form
+            onSubmit={handleRegister}
+            className="w-full flex flex-col gap-5"
+          >
             <Entry
               iconName="User"
               placeholder="İsim Soyisim"
@@ -81,8 +109,8 @@ const Register = () => {
             />
 
             <Button
+              type="submit"
               className="w-full mt-4 flex items-center justify-center gap-2 text-lg py-3 shadow-lg"
-              onClick={() => console.log("Kayıt olunuyor...")}
             >
               Hesap Oluştur <span className="text-xl">→</span>
             </Button>
@@ -96,7 +124,7 @@ const Register = () => {
                 Giriş Yapın
               </Link>
             </p>
-          </div>
+          </form>
         </div>
       </div>
     </div>
