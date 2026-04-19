@@ -10,8 +10,9 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
-  const isFiltered = queryParams.get("filter") === "mine";
-  const { logout } = useAuth();
+  const currentFilter = queryParams.get("filter");
+  const isMyRecipes = currentFilter === "mine";
+  const isFavorites = currentFilter === "favorites";
 
   const handleLogout = () => {
     logout();
@@ -33,23 +34,23 @@ const Header = () => {
 
       <div className="flex items-center gap-4">
         <Button
-          // Filtre aktifse 'primary' (turuncu), değilse 'outline'
-          variant={isFiltered ? "primary" : "outline"}
-          className={`flex items-center gap-2 !px-4 !py-2 transition-all ${
-            !isFiltered
-              ? "border-[#CD7102] text-[#CD7102] hover:bg-[#CD7102]/5"
-              : ""
-          }`}
-          onClick={() => {
-            // Eğer zaten filtreliyse ana sayfaya dön (filtreyi kaldır), değilse filtrele
-            if (isFiltered) navigate("/main");
-            else navigate("/main?filter=mine");
-          }}
+          variant={isMyRecipes ? "primary" : "outline"}
+          className={`!px-4 !py-2 ${!isMyRecipes ? "border-[#CD7102] text-[#CD7102]" : ""}`}
+          onClick={() =>
+            isMyRecipes ? navigate("/main") : navigate("/main?filter=mine")
+          }
         >
-          <BookOpen size={18} />
-          <span className="text-sm">Tariflerim</span>
+          Tariflerim
         </Button>
-
+        <Button
+          variant={isFavorites ? "primary" : "outline"}
+          className={`flex items-center gap-2 !px-4 !py-2 ${!isFavorites ? "border-[#CD7102] text-[#CD7102]" : ""}`}
+          onClick={() =>
+            isFavorites ? navigate("/main") : navigate("/main?filter=favorites")
+          }
+        >
+          Favorilerim
+        </Button>
         <div className="relative">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}

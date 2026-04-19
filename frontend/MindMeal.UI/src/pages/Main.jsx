@@ -27,10 +27,13 @@ const Main = () => {
   const fetchRecipes = async () => {
     try {
       const token = localStorage.getItem("token");
-      const url =
-        filter === "mine"
-          ? "http://localhost:5085/api/recipe/my-recipes"
-          : "http://localhost:5085/api/recipe";
+      let url = "http://localhost:5085/api/recipe";
+
+      if (filter === "mine") {
+        url = "http://localhost:5085/api/recipe/my-recipes";
+      } else if (filter === "favorites") {
+        url = "http://localhost:5085/api/recipe/favorites"; // Bu endpoint'i backend'e ekleyeceğiz
+      }
 
       const response = await axios.get(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
