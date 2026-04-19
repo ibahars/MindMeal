@@ -4,22 +4,36 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import RecipeCard from "../components/RecipeCard";
 import AddRecipeModal from "../components/AddRecipeModal";
-
+import { useLocation } from "react-router-dom";
+import { UtensilsCrossed } from "lucide-react"; // Eksik olan bu!
 const Main = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const filter = queryParams.get("filter");
+
   const [recipes, setRecipes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const fetchRecipes = async () => {
     try {
-      const response = await axios.get("http://localhost:5085/api/recipe");
+      const token = localStorage.getItem("token");
+      const url =
+        filter === "mine"
+          ? "http://localhost:5085/api/recipe/my-recipes"
+          : "http://localhost:5085/api/recipe";
+
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setRecipes(response.data);
     } catch (error) {
-      toast.error("tarifler çekilemedi");
+      toast.error("tarifler yüklenemedi.");
     }
   };
 
   useEffect(() => {
     fetchRecipes();
-  }, []);
+  }, [filter]);
 
   return (
     <div className="px-8 md:px-16 py-12 font-sans bg-white min-h-screen">
@@ -44,13 +58,27 @@ const Main = () => {
           <span className="text-xl">+</span> Tarif Paylaş
         </button>
       </div>
-      <div className="mb-12 text-left"></div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {recipes.map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
-        ))}
-      </div>
+      {recipes.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {recipes.map((recipe) => (
+            <RecipeCard key={recipe.id} recipe={recipe} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="bg-gray-100 p-8 rounded-full mb-6">
+            <UtensilsCrossed size={48} className="text-gray-300" />
+          </div>
+          <h3 className="text-2xl font-bold text-gray-700 mb-2">
+            Henüz hiç tarif eklemediniz
+          </h3>
+          <p className="text-gray-500 max-w-xs">
+            Paylaştığınız lezzetler burada listelenecek. İlk tarifinizi hemen
+            ekleyebilirsiniz!
+          </p>
+        </div>
+      )}
 
       <AddRecipeModal
         isOpen={isModalOpen}
