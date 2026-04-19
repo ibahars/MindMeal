@@ -1,6 +1,7 @@
-import { Clock, Star, Utensils, Heart, Activity } from "lucide-react";
+import { Clock, Star, Utensils, Heart, Activity, Pencil } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
-const RecipeCard = ({ recipe }) => {
+const RecipeCard = ({ recipe, onEdit }) => {
   const isNew = () => {
     if (!recipe.createdAt) return false;
 
@@ -13,6 +14,11 @@ const RecipeCard = ({ recipe }) => {
     return diffDays <= 2;
   };
 
+  const { user } = useAuth();
+  console.log("Giriş yapan user:", user);
+  console.log("Tarif sahibi id:", recipe.userId);
+  const isOwner =
+    user && String(recipe.userId) === String(user.id || user.nameid);
   return (
     <div className="bg-[#F0F0F0] rounded-[40px] overflow-hidden w-full max-w-sm shadow-sm">
       <div className="relative h-72 w-full p-2">
@@ -25,6 +31,18 @@ const RecipeCard = ({ recipe }) => {
         <button className="absolute top-6 right-6 bg-white/80 p-2 rounded-full hover:bg-white transition-colors">
           <Heart size={20} className="text-black" />
         </button>
+
+        {isOwner && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Card'ın kendi tıklama olayını bozmasın
+              onEdit(recipe);
+            }}
+            className="absolute top-6 right-16 bg-white/80 p-2 rounded-full hover:bg-black hover:text-white transition-all shadow-md"
+          >
+            <Pencil size={18} />
+          </button>
+        )}
       </div>
 
       <div className="p-6 pt-2">

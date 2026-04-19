@@ -5,15 +5,25 @@ import { toast } from "react-toastify";
 import RecipeCard from "../components/RecipeCard";
 import AddRecipeModal from "../components/AddRecipeModal";
 import { useLocation } from "react-router-dom";
-import { UtensilsCrossed } from "lucide-react"; // Eksik olan bu!
+import { UtensilsCrossed } from "lucide-react";
+
 const Main = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const filter = queryParams.get("filter");
 
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const handleEditClick = (recipe) => {
+    setSelectedRecipe(recipe);
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRecipe(null);
+  };
   const fetchRecipes = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -62,7 +72,11 @@ const Main = () => {
       {recipes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {recipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onEdit={handleEditClick}
+            />
           ))}
         </div>
       ) : (
@@ -84,6 +98,7 @@ const Main = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onRefresh={fetchRecipes}
+        editData={selectedRecipe}
       />
     </div>
   );
