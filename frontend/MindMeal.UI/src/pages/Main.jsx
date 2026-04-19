@@ -33,11 +33,11 @@ const Main = () => {
           : "http://localhost:5085/api/recipe";
 
       const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       setRecipes(response.data);
     } catch (error) {
-      toast.error("tarifler yüklenemedi.");
+      toast.error("tarifler yüklenemedi");
     }
   };
 

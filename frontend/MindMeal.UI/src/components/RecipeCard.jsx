@@ -1,7 +1,31 @@
 import { Clock, Star, Utensils, Heart, Activity, Pencil } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const RecipeCard = ({ recipe, onEdit }) => {
+  const [isLiked, setIsLiked] = useState(recipe.isFavorite);
+  useEffect(() => {
+    setIsLiked(recipe.isFavorite);
+  }, [recipe.isFavorite]);
+  const handleLike = async (e) => {
+    e.stopPropagation();
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5085/api/favorite/${recipe.id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      setIsLiked(response.data.isFavorite);
+    } catch (error) {
+      toast.error("Beğeni işlemi sırasında bir hata oluştu.");
+    }
+  };
+
   const isNew = () => {
     if (!recipe.createdAt) return false;
 
@@ -26,14 +50,20 @@ const RecipeCard = ({ recipe, onEdit }) => {
           </div>
         )}
 
-        <button className="absolute top-6 right-6 bg-white/80 p-2 rounded-full hover:bg-white transition-colors">
-          <Heart size={20} className="text-black" />
+        <button
+          onClick={handleLike}
+          className="absolute top-6 right-6 bg-white/80 p-2 rounded-full hover:bg-white transition-all shadow-md active:scale-90"
+        >
+          <Heart
+            size={20}
+            className={`transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-black"}`}
+          />
         </button>
 
         {isOwner && (
           <button
             onClick={(e) => {
-              e.stopPropagation(); // Card'ın kendi tıklama olayını bozmasın
+              e.stopPropagation();
               onEdit(recipe);
             }}
             className="absolute top-6 right-16 bg-white/80 p-2 rounded-full hover:bg-black hover:text-white transition-all shadow-md"
