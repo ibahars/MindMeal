@@ -41,6 +41,10 @@ const Register = () => {
       toast.success("Kayıt başarılı!");
       navigate("/login");
     } catch (error) {
+      const errorMessage =
+        typeof error.response?.data === "string"
+          ? error.response.data
+          : error.response?.data?.message || "Bir hata oluştu";
       toast.error(error.response?.data || "Hata oluştu");
     }
   };
