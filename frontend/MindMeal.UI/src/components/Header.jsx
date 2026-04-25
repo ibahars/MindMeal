@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { UtensilsCrossed, User, LogOut, BookOpen } from "lucide-react";
+import { UtensilsCrossed, User, LogOut, BookOpen, Search } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import Button from "./Button";
 
-const Header = () => {
+const Header = ({ searchTerm, setSearchTerm }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,6 +35,16 @@ const Header = () => {
       </Link>
 
       <div className="flex items-center gap-4">
+        <div className="hidden md:block relative flex-1 max-w-md mx-2">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Tarif ara..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-[#F0F0F0] rounded-full py-2 pl-12 pr-6 outline-none focus:ring-2 focus:ring-[#D47900] transition-all font-medium text-black text-sm"
+          />
+        </div>
         <Button
           variant={isMyRecipes ? "primary" : "outline"}
           className={`!px-4 !py-2 ${!isMyRecipes ? "border-[#CD7102] text-[#CD7102]" : ""}`}

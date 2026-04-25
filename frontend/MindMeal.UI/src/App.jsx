@@ -12,8 +12,10 @@ import { AuthProvider } from "./context/AuthContext";
 import Header from "./components/Header";
 import Main from "./pages/Main";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useState } from "react";
 
 function App() {
+  const [searchTerm, setSearchTerm] = useState("");
   return (
     <AuthProvider>
       <Router>
@@ -26,8 +28,11 @@ function App() {
             element={
               <>
                 <ProtectedRoute>
-                  <Header />
-                  <Main />
+                  <Header
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                  />
+                  <Main searchTerm={searchTerm} />
                 </ProtectedRoute>
               </>
             }

@@ -7,7 +7,7 @@ import AddRecipeModal from "../components/AddRecipeModal";
 import { useLocation } from "react-router-dom";
 import { UtensilsCrossed, Search } from "lucide-react";
 
-const Main = () => {
+const Main = ({ searchTerm }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const filter = queryParams.get("filter");
@@ -15,7 +15,6 @@ const Main = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const handleEditClick = (recipe) => {
     setSelectedRecipe(recipe);
@@ -69,17 +68,6 @@ const Main = () => {
           </p>
         </div>
         <div className="flex flex-col items-end gap-4">
-          <div className="relative w-64 md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Tarif ara..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#F0F0F0] rounded-full py-3 pl-12 pr-6 outline-none focus:ring-2 focus:ring-[#D47900] transition-all font-medium text-black"
-            />
-          </div>
-
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-black text-white px-8 py-4 rounded-full font-bold hover:bg-[#D47900] transition-all shadow-lg flex items-center gap-2"
