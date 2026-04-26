@@ -137,3 +137,6 @@ D:\MindMeal\backend\MindMeal.API\obj\Debug\net8.0\refint\MindMeal.API.dll
 D:\MindMeal\backend\MindMeal.API\obj\Debug\net8.0\MindMeal.API.pdb
 D:\MindMeal\backend\MindMeal.API\obj\Debug\net8.0\MindMeal.API.genruntimeconfig.cache
 D:\MindMeal\backend\MindMeal.API\obj\Debug\net8.0\ref\MindMeal.API.dll
+D:\MindMeal\backend\MindMeal.API\bin\Debug\net8.0\CloudinaryDotNet.dll
+D:\MindMeal\backend\MindMeal.API\bin\Debug\net8.0\dotenv.net.dll
+D:\MindMeal\backend\MindMeal.API\bin\Debug\net8.0\Newtonsoft.Json.dll

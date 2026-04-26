@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using MindMeal.API.Data;
 using System.Text;
+using dotenv.net;
+DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 

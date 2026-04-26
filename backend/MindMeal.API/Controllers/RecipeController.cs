@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using MindMeal.API.Data;
 using MindMeal.API.Models;
 using System.Security.Claims;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace MindMeal.API.Controllers
 {
@@ -12,10 +14,18 @@ namespace MindMeal.API.Controllers
     public class RecipeController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly Cloudinary _cloudinary;
 
         public RecipeController(AppDbContext context)
         {
             _context = context;
+
+            var account = new Account(
+                Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME"),
+                Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY"),
+                Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET")
+            );
+            _cloudinary = new Cloudinary(account);
         }
 
         [HttpGet]
@@ -24,22 +34,19 @@ namespace MindMeal.API.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             int currentUserId = userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
 
-            var recipes = await _context.Recipes
-                .Select(r => new
-                {
-                    r.Id,
-                    r.Title,
-                    r.Description,
-                    r.PrepTime,
-                    r.Difficulty,
-                    r.Calories,
-                    r.CreatedAt,
-                    r.UserId,
-                    IsFavorite = currentUserId != 0 && _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == currentUserId)
-                })
-                .ToListAsync();
-
-            return Ok(recipes);
+            return Ok(await _context.Recipes.Select(r => new
+            {
+                r.Id,
+                r.Title,
+                r.Description,
+                r.ImageUrl,
+                r.PrepTime,
+                r.Difficulty,
+                r.Calories,
+                r.CreatedAt,
+                r.UserId,
+                IsFavorite = currentUserId != 0 && _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == currentUserId)
+            }).ToListAsync());
         }
 
         [HttpGet("my-recipes")]
@@ -47,59 +54,70 @@ namespace MindMeal.API.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetMyRecipes()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-            var myRecipes = await _context.Recipes
-                .Where(r => r.UserId == userId)
-                .Select(r => new
-                {
-                    r.Id,
-                    r.Title,
-                    r.Description,
-                    r.PrepTime,
-                    r.Difficulty,
-                    r.Calories,
-                    r.CreatedAt,
-                    r.UserId,
-                    IsFavorite = _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == userId)
-                })
-                .ToListAsync();
-
-            return Ok(myRecipes);
+            return Ok(await _context.Recipes.Where(r => r.UserId == userId).Select(r => new
+            {
+                r.Id,
+                r.Title,
+                r.Description,
+                r.ImageUrl,
+                r.PrepTime,
+                r.Difficulty,
+                r.Calories,
+                r.CreatedAt,
+                r.UserId,
+                IsFavorite = _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == userId)
+            }).ToListAsync());
         }
 
         [HttpGet("favorites")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<object>>> GetFavoriteRecipes()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized();
+            var userId = int.Parse(userIdClaim.Value);
 
-            var favoriteRecipes = await _context.Favorites
-                .Where(f => f.UserId == userId)
-                .Include(f => f.Recipe)
-                .Select(f => new
-                {
-                    f.Recipe!.Id,
-                    f.Recipe.Title,
-                    f.Recipe.Description,
-                    f.Recipe.PrepTime,
-                    f.Recipe.Difficulty,
-                    f.Recipe.Calories,
-                    f.Recipe.CreatedAt,
-                    f.Recipe.UserId,
-                    IsFavorite = true
-                })
-                .ToListAsync();
-
-            return Ok(favoriteRecipes);
+            return Ok(await _context.Favorites.Where(f => f.UserId == userId).Include(f => f.Recipe).Select(f => new
+            {
+                f.Recipe!.Id,
+                f.Recipe.Title,
+                f.Recipe.Description,
+                f.Recipe.ImageUrl,
+                f.Recipe.PrepTime,
+                f.Recipe.Difficulty,
+                f.Recipe.Calories,
+                f.Recipe.CreatedAt,
+                f.Recipe.UserId,
+                IsFavorite = true
+            }).ToListAsync());
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Recipe>> CreateRecipe(Recipe recipe)
+        public async Task<ActionResult<Recipe>> CreateRecipe(
+            [FromForm] string title,
+            [FromForm] string description,
+            [FromForm] int prepTime,
+            [FromForm] int calories,
+            [FromForm] string difficulty,
+            IFormFile? imageFile)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            recipe.UserId = userId;
-            recipe.CreatedAt = DateTime.Now;
+            var recipe = new Recipe
+            {
+                Title = title,
+                Description = description,
+                PrepTime = prepTime,
+                Calories = calories,
+                Difficulty = difficulty,
+                UserId = userId,
+                CreatedAt = DateTime.Now
+            };
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                recipe.ImageUrl = await UploadToCloudinary(imageFile);
+            }
 
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync();
@@ -108,7 +126,14 @@ namespace MindMeal.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> UpdateRecipe(int id, Recipe recipe)
+        public async Task<IActionResult> UpdateRecipe(
+            int id,
+            [FromForm] string title,
+            [FromForm] string description,
+            [FromForm] int prepTime,
+            [FromForm] int calories,
+            [FromForm] string difficulty,
+            IFormFile? imageFile)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var existingRecipe = await _context.Recipes.FindAsync(id);
@@ -116,11 +141,16 @@ namespace MindMeal.API.Controllers
             if (existingRecipe == null) return NotFound();
             if (existingRecipe.UserId != userId) return Forbid();
 
-            existingRecipe.Title = recipe.Title;
-            existingRecipe.Description = recipe.Description;
-            existingRecipe.PrepTime = recipe.PrepTime;
-            existingRecipe.Difficulty = recipe.Difficulty;
-            existingRecipe.Calories = recipe.Calories;
+            existingRecipe.Title = title;
+            existingRecipe.Description = description;
+            existingRecipe.PrepTime = prepTime;
+            existingRecipe.Calories = calories;
+            existingRecipe.Difficulty = difficulty;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                existingRecipe.ImageUrl = await UploadToCloudinary(imageFile);
+            }
 
             await _context.SaveChangesAsync();
             return Ok(existingRecipe);
@@ -132,13 +162,22 @@ namespace MindMeal.API.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var recipe = await _context.Recipes.FindAsync(id);
-
-            if (recipe == null) return NotFound();
-            if (recipe.UserId != userId) return Forbid();
-
+            if (recipe == null || recipe.UserId != userId) return NotFound();
             _context.Recipes.Remove(recipe);
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        private async Task<string> UploadToCloudinary(IFormFile file)
+        {
+            using var stream = file.OpenReadStream();
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Transformation = new Transformation().Crop("fill").Width(800).Height(600).Crop("pad")
+            };
+            var result = await _cloudinary.UploadAsync(uploadParams);
+            return result.SecureUrl.ToString();
         }
     }
 }
