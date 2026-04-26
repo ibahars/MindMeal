@@ -26,6 +26,16 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
   const isEdit = !!editData;
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [instructions, setInstructions] = useState([""]);
+
+  const handleAddStep = () => setInstructions([...instructions, ""]);
+  const handleStepChange = (index, val) => {
+    const updated = [...instructions];
+    updated[index] = val;
+    setInstructions(updated);
+  };
+  const handleRemoveStep = (index) =>
+    setInstructions(instructions.filter((_, i) => i !== index));
 
   const {
     control,
@@ -55,6 +65,15 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
           description: editData.description || "",
         });
         setPreviewUrl(editData.imageUrl || null);
+
+        if (editData.instructions && editData.instructions.length > 0) {
+          const sortedSteps = [...editData.instructions]
+            .sort((a, b) => a.stepNumber - b.stepNumber)
+            .map((i) => i.action);
+          setInstructions(sortedSteps);
+        } else {
+          setInstructions([""]);
+        }
       } else {
         reset({
           title: "",
@@ -65,6 +84,7 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
         });
         setPreviewUrl(null);
         setSelectedFile(null);
+        setInstructions([""]);
       }
     }
   }, [editData, isOpen, reset]);
@@ -78,6 +98,10 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
       formData.append("prepTime", data.prepTime);
       formData.append("calories", data.calories);
       formData.append("difficulty", data.difficulty);
+      formData.append(
+        "instructionsJson",
+        JSON.stringify(instructions.filter((s) => s.trim() !== "")),
+      );
       if (selectedFile) formData.append("imageFile", selectedFile);
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -224,6 +248,46 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
                 {errors.description.message}
               </p>
             )}
+          </div>
+          <div className="mt-6">
+            <label className="text-sm font-black text-black ml-4 mb-2 block">
+              Hazırlanış Aşamaları
+            </label>
+            <div className="flex flex-col gap-3">
+              {instructions.map((step, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-3 animate-in fade-in slide-in-from-left-2"
+                >
+                  <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    {index + 1}
+                  </div>
+                  <input
+                    type="text"
+                    value={step}
+                    onChange={(e) => handleStepChange(index, e.target.value)}
+                    placeholder={`Adım ${index + 1}...`}
+                    className="flex-1 bg-white rounded-full px-5 py-2.5 shadow-sm outline-none text-sm focus:ring-2 focus:ring-[#D47900] transition-all"
+                  />
+                  {instructions.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStep(index)}
+                      className="text-red-500 p-1 hover:bg-red-50 rounded-full transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={handleAddStep}
+              className="mt-3 ml-11 text-[#D47900] text-xs font-bold hover:underline transition-all flex items-center gap-1"
+            >
+              + Yeni Adım Ekle
+            </button>
           </div>
           <div className="flex gap-4 mt-4">
             <Button
