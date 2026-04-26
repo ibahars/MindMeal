@@ -23,7 +23,7 @@ const Header = ({ searchTerm, setSearchTerm }) => {
   };
 
   return (
-    <header className="w-full bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50 font-sans">
+    <header className="w-full bg-[#F5F1E9] border-b border-gray-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50 font-sans">
       <Link
         to="/main"
         className="flex items-center gap-2 hover:opacity-90 transition-opacity"
@@ -42,7 +42,7 @@ const Header = ({ searchTerm, setSearchTerm }) => {
             placeholder="Tarif ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#F0F0F0] rounded-full py-2 pl-12 pr-6 outline-none focus:ring-2 focus:ring-[#D47900] transition-all font-medium text-black text-sm"
+            className="w-full bg-white rounded-full py-2 pl-12 pr-6 outline-none focus:ring-2 focus:ring-[#D47900] transition-all font-medium text-black text-sm"
           />
         </div>
         <Button

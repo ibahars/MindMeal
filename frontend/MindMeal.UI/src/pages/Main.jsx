@@ -53,7 +53,7 @@ const Main = ({ searchTerm }) => {
   );
 
   return (
-    <div className="px-8 md:px-16 py-12 font-sans bg-white min-h-screen">
+    <div className="px-8 md:px-16 py-12 font-sans bg-[#F5F1E9] min-h-screen">
       <div className="flex justify-between items-start mb-12">
         <div className="text-left">
           <h1 className="text-5xl md:text-6xl font-black text-black leading-tight">

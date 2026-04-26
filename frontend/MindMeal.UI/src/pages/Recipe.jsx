@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Clock, Flame, BarChart3 } from "lucide-react";
+import { ArrowLeft, Heart, Clock, Flame, BarChart3, Tag } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -73,7 +73,12 @@ const Recipes = () => {
           />
         </button>
 
-        <div className="absolute bottom-10 left-24 right-12 space-y-3">
+        <div className="absolute bottom-10 left-24 right-12 space-y-4">
+          <div className="inline-block px-4 py-1.5 bg-[#D47900] rounded-full shadow-md">
+            <span className="text-white text-xs md:text-sm font-semibold tracking-wider capitalize">
+              {recipe.category || "Genel"}
+            </span>
+          </div>
           <h1 className="text-white text-4xl md:text-5xl font-bold drop-shadow-lg tracking-tight text-left">
             {recipe.title}
           </h1>

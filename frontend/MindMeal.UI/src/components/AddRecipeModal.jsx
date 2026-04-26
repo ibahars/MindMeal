@@ -20,6 +20,7 @@ const recipeSchema = z.object({
   ),
   difficulty: z.string().min(1, "Zorluk seçimi zorunludur"),
   description: z.string().min(10, "Açıklama en az 10 karakter olmalıdır"),
+  category: z.string().min(1, "Kategori seçimi zorunludur!"),
 });
 
 const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
@@ -63,6 +64,7 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
           calories: editData.calories || "",
           difficulty: editData.difficulty || "",
           description: editData.description || "",
+          category: editData.category || "",
         });
         setPreviewUrl(editData.imageUrl || null);
 
@@ -81,6 +83,7 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
           calories: "",
           difficulty: "",
           description: "",
+          category: "",
         });
         setPreviewUrl(null);
         setSelectedFile(null);
@@ -102,6 +105,7 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
         "instructionsJson",
         JSON.stringify(instructions.filter((s) => s.trim() !== "")),
       );
+      formData.append("category", data.category);
       if (selectedFile) formData.append("imageFile", selectedFile);
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -234,6 +238,25 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
             {errors.difficulty && (
               <p className="text-red-500 text-xs ml-4 mt-1 font-semibold">
                 {errors.difficulty.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <select
+              {...register("category")}
+              className={`w-full bg-white rounded-full px-6 py-3 shadow-sm border-none outline-none text-sm font-medium text-gray-700 appearance-none ${errors.category ? "ring-2 ring-red-500" : ""}`}
+            >
+              <option value="">Kategori Seçin</option>
+              <option value="Kahvaltı">Kahvaltı</option>
+              <option value="Ana Yemek">Ana Yemek</option>
+              <option value="Tatlı">Tatlı</option>
+              <option value="İçecek">İçecek</option>
+              <option value="Atıştırmalık">Atıştırmalık</option>
+              <option value="Diyet">Sağlıklı Beslenme</option>
+            </select>
+            {errors.category && (
+              <p className="text-red-500 text-xs ml-4 mt-1 font-semibold">
+                {errors.category.message}
               </p>
             )}
           </div>

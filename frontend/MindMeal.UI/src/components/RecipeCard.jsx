@@ -51,7 +51,7 @@ const RecipeCard = ({ recipe, onEdit }) => {
   return (
     <div
       onClick={handleCardClick}
-      className=" cursor-pointer bg-[#F0F0F0] rounded-[40px] overflow-hidden w-full max-w-sm shadow-sm"
+      className=" cursor-pointer bg-white rounded-[40px] overflow-hidden w-full max-w-sm shadow-sm"
     >
       <div className="relative h-72 w-full p-2">
         <img
@@ -62,9 +62,17 @@ const RecipeCard = ({ recipe, onEdit }) => {
           alt={recipe.title}
           className="w-full h-full object-cover object-center rounded-[32px] shadow-sm"
         />
-        {isNew() && (
-          <div className="absolute top-6 left-6 bg-[#D47900] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold shadow-lg">
+        {isNew() ? (
+          <div className="absolute top-6 left-6 bg-[#D47900] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold shadow-lg z-20">
             <span className="text-xs">✓</span> Yeni Eklendi
+          </div>
+        ) : (
+          <div className="absolute top-6 left-6 z-10">
+            <div className="h-6 px-3 bg-white/20 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center shadow-sm">
+              <span className="text-white text-[10px] font-bold font-['Montserrat'] capitalize tracking-[0.12em] leading-none">
+                {recipe.category || "Genel"}
+              </span>
+            </div>
           </div>
         )}
 
