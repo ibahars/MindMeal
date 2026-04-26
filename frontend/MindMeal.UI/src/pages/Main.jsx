@@ -107,7 +107,7 @@ const Main = ({ searchTerm }) => {
 
       <AddRecipeModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onRefresh={fetchRecipes}
         editData={selectedRecipe}
       />

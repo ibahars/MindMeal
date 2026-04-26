@@ -44,16 +44,32 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
   });
 
   useEffect(() => {
-    if (editData) {
-      setValue("title", editData.title);
-      setValue("prepTime", editData.prepTime);
-      setValue("calories", editData.calories);
-      setValue("difficulty", editData.difficulty);
-      setValue("description", editData.description);
+    if (isOpen) {
+      if (editData) {
+        setValue("title", editData.title);
+        setValue("prepTime", editData.prepTime);
+        setValue("calories", editData.calories);
+        setValue("difficulty", editData.difficulty);
+        setValue("description", editData.description);
+      } else {
+        reset({
+          title: "",
+          prepTime: "",
+          calories: "",
+          difficulty: "",
+          description: "",
+        });
+      }
     } else {
-      reset();
+      reset({
+        title: "",
+        prepTime: "",
+        calories: "",
+        difficulty: "",
+        description: "",
+      });
     }
-  }, [editData, setValue, reset]);
+  }, [editData, setValue, reset, isOpen]);
 
   const onSubmit = async (data) => {
     try {
