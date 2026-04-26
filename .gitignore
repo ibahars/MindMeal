@@ -8,8 +8,11 @@
 *.userosscache
 *.sln.docstates
 # User-specific files
-.env
-.env.local
+**/.env
+**/.env.local
+**/bin/
+**/obj/
+.vs/
 
 # Build results
 [Bb]in/
