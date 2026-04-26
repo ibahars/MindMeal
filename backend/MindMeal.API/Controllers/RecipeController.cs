@@ -6,6 +6,7 @@ using MindMeal.API.Models;
 using System.Security.Claims;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using System.Text.Json;
 
 namespace MindMeal.API.Controllers
 {
@@ -34,7 +35,7 @@ namespace MindMeal.API.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             int currentUserId = userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
 
-            return Ok(await _context.Recipes.Select(r => new
+            return Ok(await _context.Recipes.Include(r => r.Instructions).Select(r => new
             {
                 r.Id,
                 r.Title,
@@ -45,6 +46,12 @@ namespace MindMeal.API.Controllers
                 r.Calories,
                 r.CreatedAt,
                 r.UserId,
+                Instructions = r.Instructions.Select(i => new
+                {
+                    i.Id,
+                    i.StepNumber,
+                    i.Action
+                }).OrderBy(i => i.StepNumber).ToList(),
                 IsFavorite = currentUserId != 0 && _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == currentUserId)
             }).ToListAsync());
         }
@@ -54,7 +61,7 @@ namespace MindMeal.API.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetMyRecipes()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            return Ok(await _context.Recipes.Where(r => r.UserId == userId).Select(r => new
+            return Ok(await _context.Recipes.Where(r => r.UserId == userId).Include(r => r.Instructions).Select(r => new
             {
                 r.Id,
                 r.Title,
@@ -65,7 +72,14 @@ namespace MindMeal.API.Controllers
                 r.Calories,
                 r.CreatedAt,
                 r.UserId,
-                IsFavorite = _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == userId)
+                Instructions = r.Instructions.Select(i => new
+                {
+                    i.Id,
+                    i.StepNumber,
+                    i.Action
+                }).OrderBy(i => i.StepNumber).ToList(),
+                IsFavorite = _context.Favorites.Any(f => f.RecipeId == r.Id && f.UserId == userId),
+
             }).ToListAsync());
         }
 
@@ -100,6 +114,7 @@ namespace MindMeal.API.Controllers
             [FromForm] int prepTime,
             [FromForm] int calories,
             [FromForm] string difficulty,
+            [FromForm] string instructionsJson,
             IFormFile? imageFile)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -114,6 +129,19 @@ namespace MindMeal.API.Controllers
                 CreatedAt = DateTime.Now
             };
 
+            if (!string.IsNullOrEmpty(instructionsJson))
+            {
+                var steps = JsonSerializer.Deserialize<List<string>>(instructionsJson);
+                if (steps != null)
+                {
+                    recipe.Instructions = steps.Select((s, index) => new Instruction
+                    {
+                        StepNumber = index + 1,
+                        Action = s
+                    }).ToList();
+                }
+            }
+
             if (imageFile != null && imageFile.Length > 0)
             {
                 recipe.ImageUrl = await UploadToCloudinary(imageFile);
@@ -121,22 +149,23 @@ namespace MindMeal.API.Controllers
 
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync();
-            return Ok(recipe);
+            return Ok(new { message = "Tarif başarıyla oluşturuldu", recipeId = recipe.Id });
         }
 
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateRecipe(
-            int id,
-            [FromForm] string title,
-            [FromForm] string description,
-            [FromForm] int prepTime,
-            [FromForm] int calories,
-            [FromForm] string difficulty,
-            IFormFile? imageFile)
+        int id,
+        [FromForm] string title,
+        [FromForm] string description,
+        [FromForm] int prepTime,
+        [FromForm] int calories,
+        [FromForm] string difficulty,
+        [FromForm] string instructionsJson,
+        IFormFile? imageFile)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var existingRecipe = await _context.Recipes.FindAsync(id);
+            var existingRecipe = await _context.Recipes.Include(r => r.Instructions).FirstOrDefaultAsync(r => r.Id == id);
 
             if (existingRecipe == null) return NotFound();
             if (existingRecipe.UserId != userId) return Forbid();
@@ -147,13 +176,25 @@ namespace MindMeal.API.Controllers
             existingRecipe.Calories = calories;
             existingRecipe.Difficulty = difficulty;
 
-            if (imageFile != null && imageFile.Length > 0)
+            _context.Instructions.RemoveRange(existingRecipe.Instructions);
+
+            if (!string.IsNullOrEmpty(instructionsJson))
             {
-                existingRecipe.ImageUrl = await UploadToCloudinary(imageFile);
+                var steps = JsonSerializer.Deserialize<List<string>>(instructionsJson);
+                if (steps != null)
+                {
+                    existingRecipe.Instructions = steps.Select((s, index) => new Instruction
+                    {
+                        StepNumber = index + 1,
+                        Action = s
+                    }).ToList();
+                }
             }
 
+            if (imageFile != null) existingRecipe.ImageUrl = await UploadToCloudinary(imageFile);
+
             await _context.SaveChangesAsync();
-            return Ok(existingRecipe);
+            return Ok(new { message = "Tarif başarıyla güncellendi" });
         }
 
         [HttpDelete("{id}")]

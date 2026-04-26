@@ -10,6 +10,7 @@ namespace MindMeal.API.Data
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<Instruction> Instructions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

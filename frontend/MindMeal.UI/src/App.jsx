@@ -13,6 +13,7 @@ import Header from "./components/Header";
 import Main from "./pages/Main";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useState } from "react";
+import Recipes from "./pages/Recipe";
 
 function App() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,6 +24,16 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/recipe/:id"
+            element={
+              <>
+                <ProtectedRoute>
+                  <Recipes />
+                </ProtectedRoute>
+              </>
+            }
+          />
           <Route
             path="/main"
             element={

@@ -3,12 +3,19 @@ import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const RecipeCard = ({ recipe, onEdit }) => {
+  const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(recipe.isFavorite);
+
   useEffect(() => {
     setIsLiked(recipe.isFavorite);
   }, [recipe.isFavorite]);
+
+  const handleCardClick = () => {
+    navigate(`/recipe/${recipe.id}`, { state: { recipe } });
+  };
   const handleLike = async (e) => {
     e.stopPropagation();
     const token = localStorage.getItem("token");
@@ -42,7 +49,10 @@ const RecipeCard = ({ recipe, onEdit }) => {
   const isOwner =
     user && String(recipe.userId) === String(user.id || user.nameid);
   return (
-    <div className="bg-[#F0F0F0] rounded-[40px] overflow-hidden w-full max-w-sm shadow-sm">
+    <div
+      onClick={handleCardClick}
+      className=" cursor-pointer bg-[#F0F0F0] rounded-[40px] overflow-hidden w-full max-w-sm shadow-sm"
+    >
       <div className="relative h-72 w-full p-2">
         <img
           src={
