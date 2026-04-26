@@ -44,6 +44,14 @@ const RecipeCard = ({ recipe, onEdit }) => {
   return (
     <div className="bg-[#F0F0F0] rounded-[40px] overflow-hidden w-full max-w-sm shadow-sm">
       <div className="relative h-72 w-full p-2">
+        <img
+          src={
+            recipe.imageUrl ||
+            "https://images.unsplash.com/photo-1495521821757-a1efb6729352?q=80&w=800"
+          }
+          alt={recipe.title}
+          className="w-full h-full object-cover object-center rounded-[32px] shadow-sm"
+        />
         {isNew() && (
           <div className="absolute top-6 left-6 bg-[#D47900] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold shadow-lg">
             <span className="text-xs">✓</span> Yeni Eklendi
