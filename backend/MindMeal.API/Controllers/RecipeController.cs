@@ -44,6 +44,7 @@ namespace MindMeal.API.Controllers
                 r.PrepTime,
                 r.Difficulty,
                 r.Calories,
+                r.Category,
                 r.CreatedAt,
                 r.UserId,
                 Instructions = r.Instructions.Select(i => new
@@ -70,6 +71,7 @@ namespace MindMeal.API.Controllers
                 r.PrepTime,
                 r.Difficulty,
                 r.Calories,
+                r.Category,
                 r.CreatedAt,
                 r.UserId,
                 Instructions = r.Instructions.Select(i => new
@@ -100,6 +102,7 @@ namespace MindMeal.API.Controllers
                 f.Recipe.PrepTime,
                 f.Recipe.Difficulty,
                 f.Recipe.Calories,
+                f.Recipe.Category,
                 f.Recipe.CreatedAt,
                 f.Recipe.UserId,
                 IsFavorite = true
@@ -113,6 +116,7 @@ namespace MindMeal.API.Controllers
             [FromForm] string description,
             [FromForm] int prepTime,
             [FromForm] int calories,
+            [FromForm] string category,
             [FromForm] string difficulty,
             [FromForm] string instructionsJson,
             IFormFile? imageFile)
@@ -124,6 +128,7 @@ namespace MindMeal.API.Controllers
                 Description = description,
                 PrepTime = prepTime,
                 Calories = calories,
+                Category = category,
                 Difficulty = difficulty,
                 UserId = userId,
                 CreatedAt = DateTime.Now
@@ -160,6 +165,7 @@ namespace MindMeal.API.Controllers
         [FromForm] string description,
         [FromForm] int prepTime,
         [FromForm] int calories,
+        [FromForm] string category,
         [FromForm] string difficulty,
         [FromForm] string instructionsJson,
         IFormFile? imageFile)
@@ -174,6 +180,7 @@ namespace MindMeal.API.Controllers
             existingRecipe.Description = description;
             existingRecipe.PrepTime = prepTime;
             existingRecipe.Calories = calories;
+            existingRecipe.Category = category;
             existingRecipe.Difficulty = difficulty;
 
             _context.Instructions.RemoveRange(existingRecipe.Instructions);

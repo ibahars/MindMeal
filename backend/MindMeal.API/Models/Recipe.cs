@@ -10,10 +10,12 @@ namespace MindMeal.API.Models
         public int PrepTime { get; set; }
         public string Difficulty { get; set; } = "Kolay";
         public int Calories { get; set; }
+        public string Category { get; set; } = "Diğer";
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int UserId { get; set; }
         public User? User { get; set; }
         public List<Instruction> Instructions { get; set; } = new();
+
 
     }
 }
