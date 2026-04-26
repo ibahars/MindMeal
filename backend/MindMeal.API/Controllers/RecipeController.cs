@@ -174,7 +174,7 @@ namespace MindMeal.API.Controllers
             var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(file.FileName, stream),
-                Transformation = new Transformation().Crop("fill").Width(800).Height(600).Crop("pad")
+                Transformation = new Transformation().Crop("fill").Width(800).Height(600)
             };
             var result = await _cloudinary.UploadAsync(uploadParams);
             return result.SecureUrl.ToString();
