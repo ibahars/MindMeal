@@ -74,15 +74,38 @@ namespace MindMeal.API.Controllers
         [HttpPost("refresh-token")]
         public async Task<ActionResult<string>> RefreshToken(TokenRequestDto request)
         {
+            //null token should be denied
+            if (string.IsNullOrEmpty(request.RefreshToken))
+            {
+                return BadRequest("Refresh token gereklidir.");
+            }
+
             var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
 
-            if (user == null || user.TokenExpires < DateTime.Now)
+            if (user == null || user.TokenExpires < DateTime.UtcNow)
             {
                 return Unauthorized("Geçersiz veya süresi dolmuş Refresh Token.");
             }
 
-            string newToken = CreateToken(user);
-            return Ok(newToken);
+            //rotation
+            var newRefreshToken = GenerateRefreshToken();
+            user.RefreshToken = newRefreshToken.Token;
+            user.TokenCreated = newRefreshToken.Created;
+            user.TokenExpires = newRefreshToken.Expires;
+
+            await _context.SaveChangesAsync();
+
+            var response = new AuthResponseDto
+            {
+                Token = CreateToken(user),
+                RefreshToken = user.RefreshToken,
+                Username = user.Username,
+                Id = user.Id,
+                Email = user.Email
+            };
+
+            return Ok(response);
+
         }
 
         private string CreateToken(User user)
@@ -100,7 +123,7 @@ namespace MindMeal.API.Controllers
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: creds
             );
 
@@ -111,7 +134,7 @@ namespace MindMeal.API.Controllers
             var refreshToken = new RefreshToken
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.Now.AddMinutes(15),
+                Expires = DateTime.UtcNow.AddDays(7),
                 Created = DateTime.Now
             };
 
