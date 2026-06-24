@@ -26,7 +26,7 @@ namespace MindMeal.API.Data
                 .HasOne(f => f.Recipe)
                 .WithMany()
                 .HasForeignKey(f => f.RecipeId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
