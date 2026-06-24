@@ -149,6 +149,11 @@ namespace MindMeal.API.Controllers
 
             if (imageFile != null && imageFile.Length > 0)
             {
+                var validationError = ValidateImage(imageFile);
+                if (validationError != null)
+                {
+                    return BadRequest(validationError);
+                }
                 recipe.ImageUrl = await UploadToCloudinary(imageFile);
             }
 
@@ -198,7 +203,15 @@ namespace MindMeal.API.Controllers
                 }
             }
 
-            if (imageFile != null) existingRecipe.ImageUrl = await UploadToCloudinary(imageFile);
+            if (imageFile != null)
+            {
+                var validationError = ValidateImage(imageFile);
+                if (validationError != null)
+                {
+                    return BadRequest(validationError);
+                }
+                existingRecipe.ImageUrl = await UploadToCloudinary(imageFile);
+            }
 
             await _context.SaveChangesAsync();
             return Ok(new { message = "Tarif başarıyla güncellendi" });
@@ -227,5 +240,25 @@ namespace MindMeal.API.Controllers
             var result = await _cloudinary.UploadAsync(uploadParams);
             return result.SecureUrl.ToString();
         }
+
+        private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".webp" };
+        private static readonly string[] AllowedMimeTypes = { "image/jpeg", "image/png", "image/webp" };
+        private const long MaxFileSizeBytes = 5 * 1024 * 1024;
+
+        private string? ValidateImage(IFormFile file)
+        {
+            if (file.Length > MaxFileSizeBytes)
+                return "Dosya boyutu 5 MB'ı geçemez.";
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(extension))
+                return "Sadece .jpg, .jpeg, .png ve .webp uzantılı dosyalar yüklenebilir.";
+
+            if (!AllowedMimeTypes.Contains(file.ContentType.ToLowerInvariant()))
+                return "Geçersiz dosya tipi. Sadece JPEG, PNG ve WebP görseller kabul edilir.";
+
+            return null;
+        }
+
     }
 }
