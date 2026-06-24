@@ -39,7 +39,15 @@ namespace MindMeal.API.Controllers
                 CreatedAt = DateTime.Now
             };
             _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Unique index
+                return BadRequest("Bu e-posta adresi zaten kullanımda.");
+            }
 
             return Ok(new { message = "User created!" });
         }

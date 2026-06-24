@@ -15,7 +15,9 @@ namespace MindMeal.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.User)
                 .WithMany()

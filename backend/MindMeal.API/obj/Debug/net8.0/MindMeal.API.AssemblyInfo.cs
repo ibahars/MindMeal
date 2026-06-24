@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MindMeal.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8979cb79e498123df9fa9028393336a64f5e5d24")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a40a95abb74626229f81ac3b94239c3926a7048f")]
 [assembly: System.Reflection.AssemblyProductAttribute("MindMeal.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MindMeal.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
