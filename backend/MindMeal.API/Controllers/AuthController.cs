@@ -36,7 +36,7 @@ namespace MindMeal.API.Controllers
                 Username = request.Username,
                 Email = request.Email,
                 PasswordHash = passwordHash,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
             _context.Users.Add(user);
             try
@@ -143,7 +143,7 @@ namespace MindMeal.API.Controllers
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
                 Expires = DateTime.UtcNow.AddDays(7),
-                Created = DateTime.Now
+                Created = DateTime.UtcNow
             };
 
             return refreshToken;

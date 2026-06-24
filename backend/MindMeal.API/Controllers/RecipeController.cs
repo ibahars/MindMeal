@@ -131,7 +131,7 @@ namespace MindMeal.API.Controllers
                 Category = category,
                 Difficulty = difficulty,
                 UserId = userId,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             if (!string.IsNullOrEmpty(instructionsJson))
