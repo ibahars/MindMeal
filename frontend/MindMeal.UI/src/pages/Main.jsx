@@ -8,6 +8,7 @@ import { useLocation } from "react-router-dom";
 import { UtensilsCrossed, Search } from "lucide-react";
 
 const Main = ({ searchTerm }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const filter = queryParams.get("filter");
@@ -40,12 +41,12 @@ const Main = ({ searchTerm }) => {
   const fetchRecipes = async () => {
     try {
       const token = localStorage.getItem("token");
-      let url = "http://localhost:5085/api/recipe";
+      let url = `${API_URL}/api/recipe`;
 
       if (filter === "mine") {
-        url = "http://localhost:5085/api/recipe/my-recipes";
+        url = `${API_URL}/api/recipe/my-recipes`;
       } else if (filter === "favorites") {
-        url = "http://localhost:5085/api/recipe/favorites";
+        url = `${API_URL}/api/recipe/favorites`;
       }
 
       const response = await axios.get(url, {

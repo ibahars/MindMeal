@@ -21,6 +21,7 @@ const registerSchema = z
     path: ["confirmPassword"],
   });
 
+const API_URL = import.meta.env.VITE_API_URL;
 const Register = () => {
   const navigate = useNavigate();
   const {
@@ -33,7 +34,7 @@ const Register = () => {
 
   const onRegisterSubmit = async (data) => {
     try {
-      await axios.post("http://localhost:5085/api/auth/register", {
+      await axios.post(`${API_URL}/api/auth/register`, {
         username: data.fullName,
         email: data.email,
         password: data.password,

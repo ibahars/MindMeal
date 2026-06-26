@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const RecipeCard = ({ recipe, onEdit }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(recipe.isFavorite);
 
@@ -22,7 +23,7 @@ const RecipeCard = ({ recipe, onEdit }) => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5085/api/favorite/${recipe.id}`,
+        `${API_URL}/api/favorite/${recipe.id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );

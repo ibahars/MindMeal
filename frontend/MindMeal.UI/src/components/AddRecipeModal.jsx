@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 import Entry from "./Entry";
 import Button from "./Button";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const recipeSchema = z.object({
   title: z.string().min(1, "Yemek adı zorunludur"),
   prepTime: z.preprocess(
@@ -112,13 +114,13 @@ const AddRecipeModal = ({ isOpen, onClose, onRefresh, editData }) => {
 
       if (isEdit) {
         await axios.put(
-          `http://localhost:5085/api/recipe/${editData.id}`,
+          `${API_URL}/api/recipe/${editData.id}`,
           formData,
           config,
         );
         toast.success("Güncellendi!");
       } else {
-        await axios.post("http://localhost:5085/api/recipe", formData, config);
+        await axios.post(`${API_URL}/api/recipe`, formData, config);
         toast.success("Paylaşıldı!");
       }
       onRefresh();

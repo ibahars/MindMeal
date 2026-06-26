@@ -4,6 +4,8 @@ import { ArrowLeft, Heart, Clock, Flame, BarChart3, Tag } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Recipes = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,7 +31,7 @@ const Recipes = () => {
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.post(
-        `http://localhost:5085/api/favorite/${recipe.id}`,
+        `h${API_URL}/api/favorite/${recipe.id}`,
         {},
         config,
       );

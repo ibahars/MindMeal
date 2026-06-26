@@ -14,7 +14,7 @@ const loginSchema = z.object({
   email: z.string().email("Geçerli bir email adresi giriniz"),
   password: z.string().min(1, "Şifre zorunludur"),
 });
-
+const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -30,7 +30,7 @@ const Login = () => {
   const onLoginSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "http://localhost:5085/api/auth/login",
+        `${API_URL}/api/auth/login`,
         {
           email: data.email,
           password: data.password,
